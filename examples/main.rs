@@ -4,13 +4,13 @@ use std::collections::HashMap;
 
 use redis::Commands;
 
-#[derive(FromRedisValue, ToRedisArgs, Debug)]
+#[derive(FromRedisValue, ToRedisArgs, Debug, PartialEq, Eq)]
 enum Color {
     Red,
     Green,
 }
 
-#[derive(Default, FromRedisValue, ToRedisArgs, Debug)]
+#[derive(Default, FromRedisValue, ToRedisArgs, Debug, PartialEq, Eq)]
 #[redis(rename_all = "snake_case")]
 enum Group {
     #[default]
@@ -18,7 +18,7 @@ enum Group {
     AdminGroup,
 }
 
-#[derive(FromRedisValue, ToRedisArgs, Debug)]
+#[derive(FromRedisValue, ToRedisArgs, Debug, PartialEq, Eq)]
 struct MySuperCoolStruct {
     first_field: String,
     second_field: Option<i64>,
@@ -39,12 +39,13 @@ fn main() -> redis::RedisResult<()> {
         group: Group::AdminGroup,
     };
 
-    let _ = redis::cmd("HSET")
+    let _: () = redis::cmd("HSET")
         .arg("test1")
         .arg(&test1)
         .query(&mut con)?;
 
     let db_test1: MySuperCoolStruct = con.hgetall("test1")?;
+    assert_eq!(test1, db_test1);
 
     println!("send : {:#?}, got : {:#?}", test1, db_test1);
 

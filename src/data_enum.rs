@@ -78,7 +78,7 @@ impl DeriveFromRedisArgs for DataEnum {
                 fn from_redis_value(v: &redis::Value) -> Result<Self, redis::RedisError> {
                     use redis::{ErrorKind::TypeError, Value};
 
-                    let Value::Data(data) = v else {
+                    let Value::BulkString(data) = v else {
                         let msg = format!("{:?}", v);
                         return Err((TypeError, "Expected Redis string, got:", msg).into());
                     };
